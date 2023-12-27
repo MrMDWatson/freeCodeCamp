@@ -1,0 +1,21 @@
+.visHolder {
+  position: absolute;
+  left: 20px;
+  top: 10em;
+}
+body {
+  background-color: burlywood;
+}
+
+#tooltip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  padding: 10px;
+  font: 12px;
+  background-color: aliceblue;
+  pointer-events: none;
+}
