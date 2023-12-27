@@ -26,7 +26,7 @@ function Display({ expression, display }) {
   return (
     <div id="screen">
       <div id="expression">{expression}</div>
-      <div id="display">{display() ? display() : "0"}</div>
+      <div id="display">{display() ? display() : "0.0"}</div>
     </div>
   );
 }
