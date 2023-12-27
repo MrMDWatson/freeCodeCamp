@@ -1,3 +1,12 @@
+function Display({ expression, display }) {
+  return (
+    <div id="screen">
+      <div id="expression">{expression}</div>
+      <div id="display">{display() ? display() : "0"}</div>
+    </div>
+  );
+}
+
 function ButtonPad({ variableInput, allClear, addVariable, addDecimal, addOperator, solve }) {
   return (
     <>
@@ -19,15 +28,6 @@ function ButtonPad({ variableInput, allClear, addVariable, addDecimal, addOperat
       <div id="zero" onClick={() => addVariable("0", variableInput)} className="numbers button zero">0</div>
       <div id="decimal" onClick={() => addDecimal(".")} className="numbers button deci">.</div>
     </>
-  );
-}
-
-function Display({ expression, display }) {
-  return (
-    <div id="screen">
-      <div id="expression">{expression}</div>
-      <div id="display">{display() ? display() : "0.0"}</div>
-    </div>
   );
 }
 
@@ -66,8 +66,10 @@ function Calculator() {
     setSolved(false);
   }
   const addDecimal = () => {
+    // If no other input is entered
     if (solved) {
       setExpression("0.");
+    // If there is a decimal
     } else if (!/[.]/g.test(variableInput)) {
       if (/\D/.test(lastInput)) {
         setExpression((prev) => prev + "0.");
@@ -80,17 +82,22 @@ function Calculator() {
   const addOperator = (symbolClicked) => {
     // Operator must be at second index or greater
     if (expression.length > 0) {
+      // Select or change operator if both operator and negative not entered
       if (!(/\D{2,2}$/.test(expression))) {
+        // Change operator
         if (operators.indexOf(lastInput) >= 0 && symbolClicked != negative) {
           setExpression((prev) => {
             let newExpression = prev.slice(0, prev.length - 1);
             return newExpression + symbolClicked;
           });
+        // Add negative
         } else if (operators.indexOf(lastInput) >= 0 && symbolClicked == negative) {
           setExpression((prev) => prev + symbolClicked);
+        // Add operator
         } else {
           setExpression((prev) => prev + symbolClicked);
         }
+      // Change both operator and negative
       } else if ((/\D{2,2}$/.test(expression)) && symbolClicked != negative) {
         setExpression((prev) => {
           let newExpression = prev.slice(0, prev.length - 2);
