@@ -1,12 +1,22 @@
-function TopControls({ timerSessionTime, sessionIncrement, sessionDecrement, timerBreakTime, breakIncrement, breakDecrement }) {
+function TopControls({ timerSessionTime, sessionIncDec, timerBreakTime, breakIncDec }) {
   return (
-    <div className="Top-Controls">
-      <button onClick={sessionIncrement}>Up</button>
-      {Math.floor(timerSessionTime/6000)}
-      <button onClick={sessionDecrement}>Down</button>
-      <button onClick={breakIncrement}>Up</button>
-      {Math.floor(timerBreakTime/6000)}
-      <button onClick={breakDecrement}>Down</button>
+    <div id="Top-Controls">
+      <div id="Session-Controls">
+        <h4 id="session-label">Session Length</h4>
+        <div>
+          <button id="session-increment" onClick={() => sessionIncDec("+")}>+</button>
+          <h5 id="session-length">{Math.floor(timerSessionTime/6000)}</h5>
+          <button id="session-decrement" onClick={() => sessionIncDec("-")}>-</button>
+        </div>
+      </div>
+      <div id="Break-Controls">
+        <h4 id="break-label">Break Length</h4>
+        <div>
+          <button id="break-increment" onClick={() => breakIncDec("+")}>+</button>
+          <h5 id="break-length">{Math.floor(timerBreakTime/6000)}</h5>
+          <button id="break-decrement" onClick={() => breakIncDec("-")}>-</button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -24,17 +34,17 @@ function Display({ sessionTimeLeft, breakTimeLeft }) {
   }
   return (
     <div className="Display">
-      {sessionTimeLeft > 0
+      {sessionTimeLeft >= 0
         ? (
           <>
-            <h3>Session</h3>
-            <h1>{sessionDisplay.minutes}:{sessionDisplay.seconds > 9 ? sessionDisplay.seconds : "0" + sessionDisplay.seconds}:{sessionDisplay.milsec > 9 ? sessionDisplay.milsec : "0" + sessionDisplay.milsec}</h1>
+            <h3 id="timer-label">Session</h3>
+            <h1 id="time-left">{sessionDisplay.minutes}:{sessionDisplay.seconds > 9 ? sessionDisplay.seconds : "0" + sessionDisplay.seconds}</h1>
           </>
         )
         : (
           <>
-            <h3>Break</h3>
-            <h1>{breakDisplay.minutes}:{breakDisplay.seconds > 9 ? breakDisplay.seconds : "0" + breakDisplay.seconds}:{breakDisplay.milsec > 9 ? breakDisplay.milsec : "0" + breakDisplay.milsec}</h1>
+            <h3 id="timer-label">Break</h3>
+            <h1 id="time-left">{breakDisplay.minutes}:{breakDisplay.seconds > 9 ? breakDisplay.seconds : "0" + breakDisplay.seconds}</h1>
           </>
         )
       }
@@ -45,57 +55,54 @@ function Display({ sessionTimeLeft, breakTimeLeft }) {
 function BottomControls({ timerOn, startTimer, stopTimer, resetTimer }) {
   return (
     <div className="Bottom-Controls">
-      <button onClick={!timerOn ? startTimer : stopTimer}>{!timerOn ? "Start" : "Stop"}</button>
-      <button onClick={resetTimer}>Reset</button>
+      <button id="start_stop" onClick={!timerOn ? startTimer : stopTimer}>{!timerOn ? "Start" : "Stop"}</button>
+      <button id="reset" onClick={resetTimer}>Reset</button>
     </div>
   );
 }
 
 function Timer() {
-  const [timer, setTimer] = React.useState();
   const [timerSessionTime, setTimerSessionTime] = React.useState(150000); // x10ms
   const [timerBreakTime, setTimerBreakTime] = React.useState(30000); // x10ms
   const [elapsedTime, setElapsedTime] = React.useState(0); // x10ms
   const [timerOn, setTimerOn] = React.useState(false);
+  const timer = React.useRef();
   const sessionTimeLeft = timerSessionTime - elapsedTime;
   const breakTimeLeft = timerBreakTime + timerSessionTime - elapsedTime;
-  const sessionIncrement = () => {
-    if (!timerOn) {
-      setTimerSessionTime((prev) => prev + 6000);
+  const sessionIncDec = (operator) => {
+    if (!timerOn && timerSessionTime > 6000 && timerSessionTime < 360000) {
+      if (operator == "+") {
+        setTimerSessionTime((prev) => prev + 6000);
+      } else if (operator == "-") {
+        setTimerSessionTime((prev) => prev - 6000);
+      }
     }
   }
-  const sessionDecrement = () => {
-    if (timerSessionTime > 6000 && !timerOn) {
-      setTimerSessionTime((prev) => prev - 6000);
-    }
-  }
-  const breakIncrement = () => {
-    if (!timer) {
-      setTimerBreakTime((prev) => prev + 6000);
-    }
-  }
-  const breakDecrement = () => {
-    if (timerBreakTime > 6000 && !timerOn) {
-      setTimerBreakTime((prev) => prev - 6000);
+  const breakIncDec = (operator) => {
+    if (!timerOn && timerBreakTime > 6000 && timerBreakTime < 360000) {
+      if (operator == "+") {
+        setTimerBreakTime((prev) => prev + 6000);
+      } else if (operator == "-") {
+        setTimerBreakTime((prev) => prev - 6000);
+      }
     }
   }
   const countDown = () => {
     setElapsedTime((prev) => prev + 10);
   }
   const startTimer = () => {
-    setTimer(setInterval(countDown, 100));
+    timer.current = setInterval(countDown, 100);
     setTimerOn(true);
   }
   const stopTimer = () => {
-    clearInterval(timer);
+    clearInterval(timer.current);
     setTimerOn(false);
   }
   const resetTimer = () => {
-    clearInterval(timer);
+    stopTimer();
     setElapsedTime(0);
     setTimerSessionTime(150000);
     setTimerBreakTime(30000);
-    setTimerOn(false);
   }
   if (elapsedTime >= timerSessionTime + timerBreakTime) {
     setElapsedTime(0);
@@ -105,11 +112,9 @@ function Timer() {
       <h2 className="Title">25 + 5 Clock</h2>
       <TopControls
         timerSessionTime={timerSessionTime}
-        sessionIncrement={sessionIncrement}
-        sessionDecrement={sessionDecrement}
+        sessionIncDec={sessionIncDec}
         timerBreakTime={timerBreakTime}
-        breakIncrement={breakIncrement}
-        breakDecrement={breakDecrement} />
+        breakIncDec={breakIncDec} />
       <Display
         sessionTimeLeft={sessionTimeLeft}
         breakTimeLeft={breakTimeLeft} />
