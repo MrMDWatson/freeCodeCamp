@@ -38,13 +38,13 @@ function Display({ sessionTimeLeft, breakTimeLeft }) {
         ? (
           <>
             <h3 id="timer-label">Session</h3>
-            <h1 id="time-left">{sessionDisplay.minutes}:{sessionDisplay.seconds > 9 ? sessionDisplay.seconds : "0" + sessionDisplay.seconds}</h1>
+            <h1 id="time-left">{sessionDisplay.minutes > 9 ? sessionDisplay.minutes : "0" + sessionDisplay.minutes}:{sessionDisplay.seconds > 9 ? sessionDisplay.seconds : "0" + sessionDisplay.seconds}</h1>
           </>
         )
         : (
           <>
             <h3 id="timer-label">Break</h3>
-            <h1 id="time-left">{breakDisplay.minutes}:{breakDisplay.seconds > 9 ? breakDisplay.seconds : "0" + breakDisplay.seconds}</h1>
+            <h1 id="time-left">{breakDisplay.minutes > 9 ? breakDisplay.minutes : "0" + breakDisplay.minutes}:{breakDisplay.seconds > 9 ? breakDisplay.seconds : "0" + breakDisplay.seconds}</h1>
           </>
         )
       }
@@ -88,10 +88,10 @@ function Timer() {
     }
   }
   const countDown = () => {
-    setElapsedTime((prev) => prev + 10);
+    setElapsedTime((prev) => prev + 100);
   }
   const startTimer = () => {
-    timer.current = setInterval(countDown, 100);
+    timer.current = setInterval(countDown, 1000);
     setTimerOn(true);
   }
   const stopTimer = () => {
