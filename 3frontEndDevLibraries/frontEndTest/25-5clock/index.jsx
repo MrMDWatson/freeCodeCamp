@@ -21,20 +21,10 @@ function TopControls({ timerSessionTime, sessionIncDec, timerBreakTime, breakInc
   );
 }
 
-function Display({ sessionTimeLeft, breakTimeLeft }) {
-  const sessionDisplay = {
-    minutes: Math.floor(sessionTimeLeft/6000),
-    seconds: Math.floor((sessionTimeLeft % 6000)/100),
-    milsec: sessionTimeLeft % 100
-  }
-  const breakDisplay = {
-    minutes: Math.floor(breakTimeLeft/6000),
-    seconds: Math.floor((breakTimeLeft % 6000)/100),
-    milsec: breakTimeLeft % 100
-  }
+function Display({ breakOn, sessionDisplay, breakDisplay }) {
   return (
     <div className="Display">
-      {sessionTimeLeft >= 0
+      {!breakOn
         ? (
           <>
             <h3 id="timer-label">Session</h3>
@@ -66,9 +56,20 @@ function Timer() {
   const [timerBreakTime, setTimerBreakTime] = React.useState(30000); // x10ms
   const [elapsedTime, setElapsedTime] = React.useState(0); // x10ms
   const [timerOn, setTimerOn] = React.useState(false);
+  const [breakOn, setBreakOn] = React.useState(false);
   const timer = React.useRef();
   const sessionTimeLeft = timerSessionTime - elapsedTime;
-  const breakTimeLeft = timerBreakTime + timerSessionTime - elapsedTime;
+  const breakTimeLeft = timerBreakTime - elapsedTime;
+  const sessionDisplay = {
+    minutes: Math.floor(sessionTimeLeft/6000),
+    seconds: Math.floor((sessionTimeLeft % 6000)/100),
+    milsec: sessionTimeLeft % 100
+  }
+  const breakDisplay = {
+    minutes: Math.floor(breakTimeLeft/6000),
+    seconds: Math.floor((breakTimeLeft % 6000)/100),
+    milsec: breakTimeLeft % 100
+  }
   const sessionIncDec = (operator) => {
     if (!timerOn && timerSessionTime > 6000 && timerSessionTime < 360000) {
       if (operator == "+") {
@@ -100,12 +101,34 @@ function Timer() {
   }
   const resetTimer = () => {
     stopTimer();
+    setBreakOn(false);
+    beep.load();
     setElapsedTime(0);
     setTimerSessionTime(150000);
     setTimerBreakTime(30000);
   }
-  if (elapsedTime >= timerSessionTime + timerBreakTime) {
-    setElapsedTime(0);
+  const playSound = () => {
+    const beep = document.getElementById("beep");
+    beep.play();
+  }
+  if (sessionTimeLeft <= 0 && !breakOn) {
+    playSound();
+    clearInterval(timer.current);
+    setTimeout(() => {
+      setElapsedTime(0);
+      setBreakOn(true);
+      setTimerOn(false);
+      startTimer();
+    }, 1000);
+  } else if (breakTimeLeft <= 0 && breakOn) {
+    playSound();
+    clearInterval(timer.current);
+    setTimeout(() => {
+      setElapsedTime(0);
+      setBreakOn(false);
+      setTimerOn(false);
+      startTimer();
+    }, 1000);
   }
   return (
     <div id="Timer">
@@ -116,13 +139,15 @@ function Timer() {
         timerBreakTime={timerBreakTime}
         breakIncDec={breakIncDec} />
       <Display
-        sessionTimeLeft={sessionTimeLeft}
-        breakTimeLeft={breakTimeLeft} />
+        breakOn={breakOn}
+        sessionDisplay={sessionDisplay}
+        breakDisplay={breakDisplay} />
       <BottomControls
         timerOn={timerOn}
         startTimer={startTimer}
         stopTimer={stopTimer}
         resetTimer={resetTimer} />
+      <audio id="beep" src="https://www2.cs.uic.edu/~i101/SoundFiles/StarWars3.wav" />
     </div>
   );
 }
