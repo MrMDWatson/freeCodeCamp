@@ -1,8 +1,5 @@
 function App() {
-  const [quote, setQuote] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [author, setAuthor] = React.useState("");
-
+  const [quote, setQuote] = React.useState({description: "test", author: "test"});
   const getQuote = async () => {
     try {
       const response = await fetch("http://www.iolaunchpad.com/quote", {
@@ -12,35 +9,15 @@ function App() {
         }
       });
       const result = await response.json();
+      console.log(result);
       setQuote(result);
     } catch(error) {
       console.log(error);
     }
   }
-
-  const setNewQuote = async (e) => {
-    //e.preventDefault();
-    try {
-      const response = await fetch("http://www.iolaunchpad.com/newQuote", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          description: description,
-          author: author
-        })
-      });
-      const result = await response.json();
-    } catch(error) {
-      console.log(error);
-    }
-  }
-
   React.useEffect(() => {
     getQuote();
   }, []);
-  
   return (
     <div id="App">
       <div id="quote-box">
@@ -55,31 +32,8 @@ function App() {
           <button id="new-quote" target="_blank" onClick={getQuote}>New Quote</button>
         </div>
       </div>
-      {/* Input new quotes
-      <form>
-        <fieldset id="set-new-quote">
-          <label for="description">Enter quote:
-            <input
-              id="description"
-              type="text"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              />
-          </label>
-          <label for="description-author">Enter author: 
-            <input
-              id="description-author"
-              type="text"
-              value={author}
-              onChange={(event) => setAuthor(event.target.value)}
-              />
-          </label>
-          <button id="quote-submit" type="submit" onClick={setNewQuote}>Enter</button>
-        </fieldset>
-      </form>
-      */}
     </div>
-  )
+  );
 }
 
 ReactDOM.render(<App />, document.getElementById("root"));

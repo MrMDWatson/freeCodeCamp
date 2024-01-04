@@ -58,8 +58,8 @@ function Calculator() {
       setExpression(numberClicked);
     } else {
       setExpression((prev) => (
-        (currentVariable[0][0] == 0 && currentVariable[0].length == 1 && numberClicked == 0)
-          ? prev
+        (currentVariable[0][0] == 0)
+          ? numberClicked
           : prev + numberClicked
       ));
     }

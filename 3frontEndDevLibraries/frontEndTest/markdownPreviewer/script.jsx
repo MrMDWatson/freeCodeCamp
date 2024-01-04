@@ -3,26 +3,33 @@ const data = {
   title: "Markdown Previewer",
   text: example
 };
-
 marked.setOptions({
   breaks: true
 });
 const renderer = new marked.Renderer();
 
-function App() {
-  const [text, setText] = React.useState(data.text);
-  function onChange(e) {
-    setText(e.target.value);
-  }
+function UpdateText({text}) {
   return (
-    <div className="toolbar">
-      <Editor
-        text={text}
-        onChange={onChange}/>
-      <Previewer
-        text={text}/>
-    </div>
+    <div
+      id="preview"
+      dangerouslySetInnerHTML={{
+        __html: marked(text, { renderer: renderer }),
+      }}></div>
   );
+}
+class Previewer extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <div className="previewer-box">
+        <div className="sub-title-box"><h4>Previewer</h4></div>
+        <UpdateText
+          text={this.props.text}/>
+      </div>
+    );
+  }
 }
 class Editor extends React.Component {
   constructor(props) {
@@ -41,27 +48,19 @@ class Editor extends React.Component {
     );
   }
 }
-class Previewer extends React.Component {
-  constructor(props) {
-    super(props);
+function App() {
+  const [text, setText] = React.useState(data.text);
+  function onChange(e) {
+    setText(e.target.value);
   }
-  render() {
-    return (
-      <div className="previewer-box">
-        <div className="sub-title-box"><h4>Previewer</h4></div>
-        <UpdateText
-          text={this.props.text}/>
-      </div>
-    );
-  }
-}
-function UpdateText({text}) {
   return (
-    <div
-      id="preview"
-      dangerouslySetInnerHTML={{
-        __html: marked(text, { renderer: renderer }),
-      }}></div>
+    <div className="toolbar">
+      <Editor
+        text={text}
+        onChange={onChange}/>
+      <Previewer
+        text={text}/>
+    </div>
   );
 }
 ReactDOM.render(<App />, document.getElementById("root"));
