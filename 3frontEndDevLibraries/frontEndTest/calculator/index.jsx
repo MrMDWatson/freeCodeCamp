@@ -56,12 +56,13 @@ function Calculator() {
   const addVariable = (numberClicked, currentVariable) => {
     if (solved) {
       setExpression(numberClicked);
+    } else if (currentVariable[0][0] == 0 && currentVariable[0].length == 1) {
+      setExpression((prev) => {
+        let newExpression = prev.slice(0, prev.length - 1);
+        return newExpression + numberClicked;
+      });
     } else {
-      setExpression((prev) => (
-        (currentVariable[0][0] == 0)
-          ? numberClicked
-          : prev + numberClicked
-      ));
+      setExpression((prev) => prev + numberClicked);
     }
     setSolved(false);
   }
