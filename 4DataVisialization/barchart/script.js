@@ -63,7 +63,7 @@ function App() {
       <h1>Hello</h1>
       <BarChart
         data={countryData}
-        height={500}
+        height={600}
         barWidth={5}
         width={countryData.length * 5}
         dataType={"casesPerOneMillion"}/>
