@@ -9,7 +9,8 @@ const Chart = ({ graphData }) => {
       .domain([0, 100])
       .range([padding, width - padding]);
     // Declare the y (vertical position) scale.
-    const yScale = d3.scaleLinear()
+    const yScale = d3
+      .scaleLinear()
       .domain([0, 100])
       .range([height - padding, padding]);
     // Add chart to div
@@ -23,31 +24,37 @@ const Chart = ({ graphData }) => {
       .data(graphData)
       .enter()
       .append("rect")
+      .attr("data-date", (d) => d)
+      .attr("gdp", (d) => d)
       .attr("width", 5)
       .attr("height", (d) => height - yScale(d) - padding)
-      .attr("x", (d, i) => (((width - (padding * 2)) / graphData.length) * i) + padding)
+      .attr("x", (d, i) => (((width - (padding * 2)) / graphData.length) * i) + padding + 20)
       .attr("y", (d, i) => yScale(d))
-      .attr("fill", "red");
+      .attr("class", "bar");
     // Add text to bar
     svg.selectAll("text")
       .data(graphData)
       .enter()
       .append("text")
-      .attr("x", (d, i) => (((width - (padding * 2)) / graphData.length) * i) + padding)
+      .attr("x", (d, i) => (((width - (padding * 2)) / graphData.length) * i) + padding + 20)
       .attr("y", (d, i) => yScale(d))
       .text((d) => `${d} USD`)
       .style("color", "black");
     // Add the x-axis.
     svg.append("g")
+      .attr("id", "x-axis")
       .attr("transform", `translate(0,${height - padding})`)
       .call(d3.axisBottom(xScale));
     // Add the y-axis.
     svg.append("g")
+      .attr("id", "y-axis")
       .attr("transform", `translate(${padding},0)`)
       .call(d3.axisLeft(yScale));
   }, [graphData]);
   return (
-    <div id="Chart"></div>
+    <div id="Chart">
+      <h3 id="title">Bar Chart</h3>
+    </div>
   );
 }
 

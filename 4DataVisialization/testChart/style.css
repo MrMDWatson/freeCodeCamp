@@ -1,3 +1,7 @@
-.black {
-    background: red;
+#title {
+    text-align: center;
+}
+
+.bar {
+    fill: red;
 }
