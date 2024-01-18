@@ -10,10 +10,10 @@ function BarChart({ data, height, width, barWidth, dataType }) {
     const countries = data.map((country) => country.country);
     
     let tooltip = d3
-    .select(".visHolder")
-    .append("div")
-    .attr("id", "tooltip")
-    .style("opacity", 0);
+      .select(".visHolder")
+      .append("div")
+      .attr("id", "tooltip")
+      .style("opacity", 0);
     
     const yMax = d3.max(countryData);
     const yScale = d3
