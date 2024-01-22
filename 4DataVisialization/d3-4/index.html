@@ -1,83 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Scaled Graphs</title>
         <meta charset="UTF-8" />
+        <title>Heat Map</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
-        <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+        <link href="index.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/topojson@3.0.2/dist/topojson.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+        <!--
+            <script src="https://cdn.jsdelivr.net/npm/d3-scale-chromatic@3.0.0/dist/d3-scale-chromatic.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+    -->
+        <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-        <script src="http://d3js.org/d3.v5.min.js"></script>
-        <link href="style.css" rel="stylesheet">
     </head>
     <body>
-        <script>
-            const dataset = [
-                  [ 34,    78 ],
-                  [ 109,   280 ],
-                  [ 310,   120 ],
-                  [ 79,    411 ],
-                  [ 420,   220 ],
-                  [ 233,   145 ],
-                  [ 333,   96 ],
-                  [ 222,   333 ],
-                  [ 78,    320 ],
-                  [ 21,    123 ]
-                ];
-            const xMin = d3.min(dataset, (d) => d[0]);
-            const xMax = d3.max(dataset, (d) => d[0]);
-            const yMin = d3.min(dataset, (d) => d[1]);
-            const yMax = d3.max(dataset, (d) => d[1]);
-
-            const w = 500;
-            const h = 500;
-            const padding = 30;
-            
-            const xScale = d3
-                .scaleLinear()
-                .domain([0, xMax])
-                .range([padding, w - padding]);
-            const yScale = d3
-                .scaleLinear()
-                .domain([0, yMax])
-                .range([h - padding, padding]);
-
-            const svg = d3
-                .select("body")
-                .append("svg")
-                .attr("width", w)
-                .attr("height", h)
-                .style("background-color", "gray");
-
-            svg.selectAll("circle")
-                .data(dataset)
-                .enter()
-                .append("circle")
-                .attr("r", 5)
-                .attr("cx", (d, i) => xScale(d[0]))
-                .attr("cy", (d, i) => yScale(d[1]))
-                .attr("fill", "red")
-                .attr("class", "circle");
-
-            svg.selectAll("text")
-                .data(dataset)
-                .enter()
-                .append("text")
-                .attr("x", (d, i) => xScale(d[0] + 10))
-                .attr("y", (d, i) => yScale(d[1]))
-                .text((d) => `[${d[0]}, ${d[1]}]`)
-                .attr("font-size", 10)
-                .attr("fill", "navy");
-
-            const xAxis = d3.axisBottom(xScale);
-            const yAxis = d3.axisLeft(yScale);
-            svg.append("g")
-                .attr("transform", "translate(0," + (h - padding) + ")")
-                .call(xAxis);
-            svg.append("g")
-                .attr("transform", "translate(" + padding + ",0)")
-                .call(yAxis)
-
-        </script>
+        <div id="root"></div>
+        <script src="index.jsx" type="text/babel"></script>
+        <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
     </body>
 </html>

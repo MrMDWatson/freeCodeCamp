@@ -1,33 +1,46 @@
 const Chart = ({ graphData }) => {
-  const createBarChart = () => {
+  const createChart = () => {
     const yearArray = graphData.map((d) => d["year"]);
-    console.log(yearArray);
-    const monthArray = graphData.map((d) => d["month"]);
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
     const xMax = d3.max(yearArray);
     const xMin = d3.min(yearArray);
-    const yMax = d3.max(monthArray);
-    const yMin = d3.min(monthArray);
-    const barWidth = 2;
-    const height = 400;
-    const width = 650;
+    const height = 600;
+    const width = 800;
     const padding = 80;
     // Declare the x (horizontal position) scale.
     const xScale = d3
       .scaleLinear()
-      .domain([xMin - 5, xMax + 5])
+      .domain([xMin, xMax + 1])
       .range([padding, width - padding]);
     // Declare the y (vertical position) scale.
     const yScale = d3
       .scaleBand()
       .domain(months)
-      .range([height - padding, padding]);
+      .range([padding, height - padding]);
     // Add tooltip
     let tooltip = d3
       .select("#Chart")
       .append("div")
       .attr("id", "tooltip")
       .style("opacity", 0);
+    // Add legend
+    const legendData = [["9.67 degrees +", "red"], ["9.66 - 8.67 degrees", "yellow"], ["8.66 - 7.67 degress", "blue"], ["7.66 degrees -", "lightBlue"]];
+    const legend = d3
+      .select("#Chart")
+      .append("div")
+      .attr("id", "legend")
+      .style("left", width - (40) + "px")
+      .style("top", padding + "px");
+    legend.selectAll("rect")
+      .data(legendData)
+      .enter()
+      .append("rect")
+      .attr("fill", (d) => d[1])
+      .style("background", (d) => d[1])
+      .attr("height", 20)
+      .attr("width", 60)
+      .attr("class", "legend-item")
+      .html((d) => d[0]);
     // Add chart to div
     const svg = d3
       .select("#Chart")
@@ -39,40 +52,56 @@ const Chart = ({ graphData }) => {
       .data(graphData)
       .enter()
       .append("rect")
-      /*
-      .attr("data-gdp", (d) => d[1])
-      .attr("data-date", (d) => d[0])
-      */
-      .attr("height", 8)
-      .attr("width", 4)
-      
+      .attr("data-year", (d) => d["year"])
+      .attr("data-month", (d) => d["month"] - 1)
+      .attr("data-temp", (d) => d["variance"] + 8.66)
+      .attr("height", (height - (padding * 2)) / 12)
+      .attr("width", (width - (padding * 2)) / (xMax - xMin))
       .attr("x", (d, i) => xScale(d["year"]))
-      .attr("y", (d, i) => yScale(d[1]))
-      .attr("class", "bar");
-      /*
+      .attr("y", (d, i) => yScale(months[d["month"] - 1]))
+      .attr("fill", (d) => (
+        d["variance"] > 2
+        ? "red"
+        : d["variance"] > 1
+          ? "orange"
+          : d["variance"] > 0
+            ? "yellow"
+            : d["variance"] > -1
+              ? "blue"
+              : "lightBlue"
+      ))
+      .attr("id", "cell")
+      .attr("class", "cell")
       .on("mouseover", (d, i) => {
         tooltip.style("opacity", 0.9);
         tooltip
-        .html(d[0] + `<br /> GDP: ` + d[1])
-        .attr("data-date", d[0])
-        .style("left", (((width - (padding * 2)) / graphData.length) * i) + padding + "px")
-        .style("top", d3.event.pageY - 60 + "px")
+          .html(`${months[d["month"] - 1]} ${d["year"]}<br />${d3.format('.1f')((Math.floor((d["variance"] + 8.66) * 100)) / 100) + '&#8451;'}<br />Variance: ${d3.format('.1f')(d["variance"]) + '&#8451;'}`)
+          .attr("data-year", d["year"])
+          .style("left", ((((width - (padding * 2)) / (xMax - xMin)) / 12) * i) + "px")
+          .style("top", d3.event.pageY - 100 + "px")
       })
       .on("mouseout", (d, i) => {
         tooltip.style("opacity", 0);
       });
-      */
-    // 
+    // Add description
+    svg.append("text")
+      .attr("font-size", 16)
+      .attr("id", "description")
+      .attr("x", padding)
+      .attr("y", padding / 2)
+      .attr("fill", "black")
+      .html(`Surface Temperature - Base 8.66&#8451;`);
+    // Axis title
     svg.append("text")
       .attr("font-size", 16)
       .attr("transform", "rotate(-90)")
         .attr("x", "-250")
       .attr("y", "30")
       .attr("fill", "black")
-      .text("GDP");
-    
+      .text("Months");
     // Add the x-axis.
-    let xAxis = d3.axisBottom(xScale);
+    let xAxis = d3.axisBottom(xScale)
+      .tickFormat(d3.format('d'));
     svg.append("g")
       .attr("id", "x-axis")
       .attr("transform", `translate(0,${height - padding})`)
@@ -86,12 +115,12 @@ const Chart = ({ graphData }) => {
   }
   React.useEffect(() => {
     if (graphData != "") {
-      createBarChart();
+      createChart();
     }
   }, [graphData]);
   return (
     <div id="Chart">
-      <h3 id="title">Bar Chart</h3>
+      <h3 id="title">Heat Map</h3>
     </div>
   );
 }
