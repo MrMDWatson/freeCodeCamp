@@ -46,7 +46,7 @@ const Chart = ({ graphData }) => {
       .attr("x", (d, i) => (((width - (padding * 2)) / graphData.length) * i) + padding)
       .attr("y", (d, i) => yScale(d[1]))
       .attr("class", "bar")
-      .on("mouseover", (event, d, i) => {
+      .on("mouseover", (event, d) => {
         tooltip.style("opacity", 0.9);
         tooltip
           .html(d[0] + `<br /> GDP: ` + d[1])

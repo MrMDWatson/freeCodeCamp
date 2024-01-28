@@ -3,7 +3,7 @@ const Chart = ({ data, height, width }) => {
 
     let svg = d3.select("#tree");
     
-    let color = d3.scaleQuantize([1, 10], d3.schemeBlues[9]);
+    let color = d3.scaleOrdinal([1, 10], [...d3.schemeSet3, ...d3.schemePaired]);
 
     let hierarchy = d3.hierarchy(data)
       .sum((d) => d.value)
@@ -15,11 +15,15 @@ const Chart = ({ data, height, width }) => {
       (hierarchy);
 
     console.log(treemap);
-
+    
     const leaf = svg.selectAll("g")
       .data(treemap.leaves())
       .enter()
       .append("g");
+
+    let legend = svg.append("g")
+      .attr("class", "legend")
+      .attr("id", "legend");
 
     leaf
       .append("rect")
@@ -28,6 +32,10 @@ const Chart = ({ data, height, width }) => {
       .attr("width", (d) => (d.x1 - d.x0))
       .attr("height", (d) => (d.y1 - d.y0))
       .style("stroke", "black")
+      .attr("class", "tile")
+      .attr("data-name", (d) => d.data.name)
+      .attr("data-category", (d) => d.data.category)
+      .attr("data-value", (d) => d.data.value)
       .style("fill", (d) => color(d.data.category));
 
     leaf
@@ -162,7 +170,6 @@ const App = () => {
     try {
       await axios.get(url)
         .then((result) => {
-          console.log(result.data);
           setData(result.data)
         });
     } catch (error) {

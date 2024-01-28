@@ -2,6 +2,10 @@ body {
     text-align: center;
 }
 
+#Chart {
+    margin-bottom: 20px;
+}
+
 
 .bar {
     border: 1px solid black;
@@ -26,4 +30,9 @@ body {
     box-shadow: 1px 1px 10px;
     border-radius: 2px;
     pointer-events: none;
+}
+
+#legend {
+    color: gray;
+    text-shadow: 0 0 10px black;
 }

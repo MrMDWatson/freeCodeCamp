@@ -23,6 +23,12 @@ const Chart = ({ graphData }) => {
       .append("div")
       .attr("id", "tooltip")
       .style("opacity", 0);
+    // Add chart to div
+    const svg = d3
+      .select("#Chart")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
     // Add legend
     const legendData = [["9.67 degrees +", "red"], ["9.66 - 8.67 degrees", "yellow"], ["8.66 - 7.67 degress", "blue"], ["7.66 degrees -", "lightBlue"]];
     const legend = d3
@@ -30,7 +36,7 @@ const Chart = ({ graphData }) => {
       .append("div")
       .attr("id", "legend")
       .style("left", width - (40) + "px")
-      .style("top", padding + "px");
+      .style("top", width - padding + "px");
     legend.selectAll("rect")
       .data(legendData)
       .enter()
@@ -41,12 +47,6 @@ const Chart = ({ graphData }) => {
       .attr("width", 60)
       .attr("class", "legend-item")
       .html((d) => d[0]);
-    // Add chart to div
-    const svg = d3
-      .select("#Chart")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height);
     // Add bars
     svg.selectAll("rect")
       .data(graphData)
@@ -72,25 +72,17 @@ const Chart = ({ graphData }) => {
       ))
       .attr("id", "cell")
       .attr("class", "cell")
-      .on("mouseover", (d, i) => {
+      .on("mouseover", (event, d) => {
         tooltip.style("opacity", 0.9);
         tooltip
           .html(`${months[d["month"] - 1]} ${d["year"]}<br />${d3.format('.1f')((Math.floor((d["variance"] + 8.66) * 100)) / 100) + '&#8451;'}<br />Variance: ${d3.format('.1f')(d["variance"]) + '&#8451;'}`)
           .attr("data-year", d["year"])
-          .style("left", ((((width - (padding * 2)) / (xMax - xMin)) / 12) * i) + "px")
-          .style("top", d3.event.pageY - 100 + "px")
+          .style("left", event.pageX + 10 + "px")
+          .style("top", event.pageY - 75 + "px")
       })
-      .on("mouseout", (d, i) => {
+      .on("mouseout", (event, d) => {
         tooltip.style("opacity", 0);
       });
-    // Add description
-    svg.append("text")
-      .attr("font-size", 16)
-      .attr("id", "description")
-      .attr("x", padding)
-      .attr("y", padding / 2)
-      .attr("fill", "black")
-      .html(`Surface Temperature - Base 8.66&#8451;`);
     // Axis title
     svg.append("text")
       .attr("font-size", 16)
@@ -121,6 +113,7 @@ const Chart = ({ graphData }) => {
   return (
     <div id="Chart">
       <h3 id="title">Heat Map</h3>
+      <p id="description">Surface Temperature - Base 8.66%</p>
     </div>
   );
 }
