@@ -23,17 +23,17 @@ const Chart = ({ graphData }) => {
       .domain([0, yMax])
       .range([height - padding, padding]);
     // Add tooltip
-    let tooltip = d3
-      .select("#Chart")
-      .append("div")
-      .attr("id", "tooltip")
-      .style("opacity", 0);
     // Add chart to div
     const svg = d3
       .select("#Chart")
       .append("svg")
       .attr("width", width)
       .attr("height", height);
+    let tooltip = d3
+      .select("#Chart")
+      .append("div")
+      .attr("id", "tooltip")
+      .style("opacity", 0);
     // Add bars
     svg.selectAll("rect")
       .data(graphData)
@@ -46,15 +46,15 @@ const Chart = ({ graphData }) => {
       .attr("x", (d, i) => (((width - (padding * 2)) / graphData.length) * i) + padding)
       .attr("y", (d, i) => yScale(d[1]))
       .attr("class", "bar")
-      .on("mouseover", (d, i) => {
+      .on("mouseover", (event, d, i) => {
         tooltip.style("opacity", 0.9);
         tooltip
-        .html(d[0] + `<br /> GDP: ` + d[1])
-        .attr("data-date", d[0])
-        .style("left", (((width - (padding * 2)) / graphData.length) * i) + padding + "px")
-        .style("top", d3.event.pageY - 60 + "px")
+          .html(d[0] + `<br /> GDP: ` + d[1])
+          .attr("data-date", d[0])
+          .style("left", event.pageX + "px")
+          .style("top", event.pageY - 60 + "px")
       })
-      .on("mouseout", (d, i) => {
+      .on("mouseout", () => {
         tooltip.style("opacity", 0);
       });
     // 

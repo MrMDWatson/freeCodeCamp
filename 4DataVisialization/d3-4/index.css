@@ -1,109 +1,17 @@
-html,
 body {
-  padding: 0;
-  margin: 0;
+  text-align: center;
 }
 
-body {
+#App {
+  width: 100vw;
   display: flex;
-  justify-content: center;
-  font-family: 'Arial';
-}
-
-#main {
-  width: 1000px;
-  display: flex;
-  padding-top: 1rem;
   flex-direction: column;
   align-items: center;
 }
 
-.counties {
-  fill: none;
-}
-
-.states {
-  fill: none;
-  stroke: #fff;
-  stroke-linejoin: round;
-}
-
-div.tooltip {
+#tooltip {
   position: absolute;
   padding: 10px;
-  font: 12px Arial;
-  background: rgba(255, 255, 204, 0.9);
-  box-shadow: 1px 1px 10px rgba(128, 128, 128, 0.6);
-  border: 0px;
-  border-radius: 2px;
-  pointer-events: none;
+  background: #222222;
+  color: white;
 }
-
-#title {
-  font-size: 3.5rem;
-}
-
-#description {
-  text-align: center;
-}
-
-#source {
-  align-self: flex-end;
-  margin-top: 1rem;
-}
-
-a {
-  text-decoration: none;
-}
-
-/*
-#title {
-    text-align: center;
-}
-
-.bar {
-    border: 1px solid black;
-}
-
-.cell:hover {
-    fill: black;
-}
-
-#tooltip {
-    display: flex;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    width: 150px;
-    height: 70px;
-    padding: 10px;
-    font: 12px;
-    color: white;
-    background-color: rgb(46, 62, 82);
-    box-shadow: 1px 1px 10px;
-    border-radius: 2px;
-    pointer-events: none;
-}
-
-#legend {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    position: absolute;
-    height: 150px;
-    width: 170px;
-    padding: 10px;
-    background-color: gray;
-    box-shadow: 1px 1px 10px;
-    border-radius: 2px;
-    pointer-events: none;
-}
-
-.legend-item {
-    font: 12px;
-    color: black;
-    font-weight: bold;
-    padding: 5px;
-}
-*/

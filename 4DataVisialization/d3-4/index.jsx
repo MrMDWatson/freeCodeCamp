@@ -1,170 +1,81 @@
-const Chart = ({ educationData, countyData }) => {
+const Chart = ({ educationData, countyData, height, width }) => {
   const createChart = () => {
-    const education = educationData;
-    const us = countyData;
-    console.log(education);
-    console.log(us);
-    const height = 600;
-    const width = 960;
-    const padding = 80;
-    var body = d3.select('body');
-
-  var svg = d3.select('svg');
-
-  // Define the div for the tooltip
-  var tooltip = body
-    .append('div')
-    .attr('class', 'tooltip')
-    .attr('id', 'tooltip')
-    .style('opacity', 0);
-
-  var path = d3.geoPath();
-
-  var x = d3.scaleLinear().domain([2.6, 75.1]).rangeRound([600, 860]);
-
-  var color = d3
-    .scaleThreshold()
-    .domain(d3.range(2.6, 75.1, (75.1 - 2.6) / 8))
-    .range(d3.schemeReds[9]);
-
-  var g = svg
-    .append('g')
-    .attr('class', 'key')
-    .attr('id', 'legend')
-    .attr('transform', 'translate(0,40)');
-
-  g.selectAll('rect')
-    .data(
-      color.range().map(function (d) {
-        d = color.invertExtent(d);
-        if (d[0] === null) {
-          d[0] = x.domain()[0];
-        }
-        if (d[1] === null) {
-          d[1] = x.domain()[1];
-        }
-        return d;
-      })
-    )
-    .enter()
-    .append('rect')
-    .attr('height', 8)
-    .attr('x', function (d) {
-      return x(d[0]);
-    })
-    .attr('width', function (d) {
-      return d[0] && d[1] ? x(d[1]) - x(d[0]) : x(null);
-    })
-    .attr('fill', function (d) {
-      return color(d[0]);
-    });
-
-    g.append('text')
-      .attr('class', 'caption')
-      .attr('x', x.range()[0])
-      .attr('y', -6)
-      .attr('fill', '#000')
-      .attr('text-anchor', 'start')
-      .attr('font-weight', 'bold');
-
-    g.call(
-      d3
-        .axisBottom(x)
-        .tickSize(13)
-        .tickFormat(function (x) {
-          return Math.round(x) + '%';
-        })
-        .tickValues(color.domain())
-      )
-      .select('.domain')
-      .remove();
-
-
-
-
-    svg
-      .append('g')
-      .attr('class', 'counties')
+    // Data arrays
+    const usTopoArray = topojson.feature(countyData, countyData.objects.counties).features;
+    const xMin = d3.min(educationData.map((d) => d["bachelorsOrHigher"]));
+    const xMax = d3.max(educationData.map((d) => d["bachelorsOrHigher"]));
+    // Map paths
+    let path = d3.geoPath();
+    // Color scale
+    let color = d3.scaleQuantize([xMin, xMax], d3.schemeBlues[9].filter((d, i) => i > 1));
+    // Legend scale
+    let x = d3.scaleLinear([xMin, xMax], [600, 860]);
+    // Create tooltip
+    let tooltip = d3.select("#Chart").append("div")
+      .attr("id", "tooltip")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+    // Create chart
+    let svg = d3.select("#Chart").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+    // Create legend
+    let legend = svg.append("g")
+      .attr("class", "legend")
+      .attr("id", "legend");
+    // Create counties
+    svg.append("g")
+      .attr("class", "counties")
       .selectAll('path')
-      .data(topojson.feature(us, us.objects.counties).features)
+      .data(usTopoArray)
       .enter()
-      .append('path')
-      .attr('class', 'county')
-      .attr('data-fips', function (d) {
-        return d.id;
-      })
-      .attr('data-education', function (d) {
-        var result = education.filter(function (obj) {
-          return obj.fips === d.id;
-        });
-        if (result[0]) {
-          return result[0].bachelorsOrHigher;
-        }
-        // could not find a matching fips id in the data
-        console.log('could find data for: ', d.id);
-        return 0;
-      })
-      .attr('fill', function (d) {
-        var result = education.filter(function (obj) {
-          return obj.fips === d.id;
-        });
-        if (result[0]) {
-          return color(result[0].bachelorsOrHigher);
-        }
-        // could not find a matching fips id in the data
-        return color(0);
-      })
-      .attr('d', path)
-      .on('mouseover', function (event, d) {
-        tooltip.style('opacity', 0.9);
+      .append("path")
+      .attr("class", "county")
+      .attr("d", path)
+      .attr("data-fips", (d) => d.id)
+      .attr("data-education", (d) => educationData.filter((county) => county.fips === d.id)[0].bachelorsOrHigher)
+      .attr("fill", (d) => color(educationData.filter((county) => county.fips === d.id)[0].bachelorsOrHigher))
+      .on("mouseover", (event, d) => {
+        tooltip.style("opacity", 0.9);
         tooltip
-          .html(function () {
-            var result = education.filter(function (obj) {
-              return obj.fips === d.id;
-            });
-            if (result[0]) {
-              return (
-                result[0]['area_name'] +
-                ', ' +
-                result[0]['state'] +
-                ': ' +
-                result[0].bachelorsOrHigher +
-                '%'
-              );
-            }
-            // could not find a matching fips id in the data
-            return 0;
+          .html(() => {
+            let result = educationData.filter((county) => county.fips === d.id);
+            return `${result[0]["area_name"]}, ${result[0]["state"]}: ${result[0].bachelorsOrHigher}%`;
           })
-          .attr('data-education', function () {
-            var result = education.filter(function (obj) {
-              return obj.fips === d.id;
-            });
-            if (result[0]) {
-              return result[0].bachelorsOrHigher;
-            }
-            // could not find a matching fips id in the data
-            return 0;
-          })
-          .style('left', event.pageX + 10 + 'px')
-          .style('top', event.pageY - 28 + 'px');
+          .attr("data-education", () => educationData.filter((county) => county.fips === d.id)[0].bachelorsOrHigher)
+          .style("left", event.pageX + 10 + "px")
+          .style("top", event.pageY - 28 + "px");
       })
-      .on('mouseout', function () {
-        tooltip.style('opacity', 0);
+      .on("mouseout", () => {
+        tooltip.style("opacity", 0);
       });
-
+    // Create states
     svg
-      .append('path')
-      .datum(
-        topojson.mesh(us, us.objects.states, function (a, b) {
-          return a !== b;
-        })
-      )
-      .attr('class', 'states')
-      .attr('d', path);
-
-
+      .append("path")
+      .datum(topojson.mesh(countyData, countyData.objects.states, (a, b) => a !== b))
+      .attr("class", "states")
+      .attr("fill", "none")
+      .attr("stroke", "white")
+      .attr("stroke-linejoin", "round")
+      .attr("d", path);
+    // Legend Axis
+    let xLegendAxis = d3.axisBottom(x)
+      .tickValues(color.range().map((d, i) => 3 + (i * ((xMax - xMin) / color.range().length))))
+      .tickSize(8)
+      .tickFormat((d) => `${Math.round(d)}%`);
+    legend
+      .attr("transform", `translate(0,40)`)
+      .call(xLegendAxis);
+    // Legend colors
+    legend.selectAll("rect")
+      .data(color.range().map((d) => [d, ...color.invertExtent(d)]))
+      .enter()
+      .append("rect")
+      .attr("height", 6)
+      .attr("x", (d, i) => x(d[1]))
+      .attr("width", (d, i) => x(d[2]) - x(d[1]))
+      .attr("fill", (d) => d[0]);
   }
-  
   React.useEffect(() => {
     if (educationData != null && countyData != null) {
       createChart();
@@ -172,8 +83,8 @@ const Chart = ({ educationData, countyData }) => {
   }, [educationData, countyData]);
   return (
     <div id="Chart">
-      <h3 id="title">Heat Map</h3>
-      <svg width="960" height="600"></svg>
+      <h3 id="title">Choropleth Map</h3>
+      <p id="description">Degree Attainment Percentage</p>
     </div>
   );
 }
@@ -183,36 +94,30 @@ const App = () => {
   const [countyData, setCountyData] = React.useState(null);
   const educationUrl = "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/for_user_education.json";
   const countyUrl = "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/counties.json";
-  const getEducationData = () => {
-    axios({
-      method: "get",
-      url: educationUrl
-    })
-      .then((result) => setEducationData(result.data))
-      .catch((error) => console.log(error));
-    
-  }
-  const getCountyData =() => {
-    axios({
-      method: "get",
-      url: countyUrl
-    })
-      .then((result) => setCountyData(result.data))
-      .catch((error) => console.log(error));
-  }
+  const urlArray = [educationUrl, countyUrl];
+  const getData = async () => {
+    try {
+      await Promise.all(urlArray.map((url) => axios.get(url)))
+        .then((responses) => {
+          setEducationData(responses[0].data);
+          setCountyData(responses[1].data);
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  };
   React.useEffect(() => {
-    getEducationData();
-  }, []);
-  React.useEffect(() => {
-    getCountyData();
+    getData();
   }, []);
   return (
-    <div id="App">
+    <main id="App">
       <Chart
         educationData={educationData}
         countyData={countyData}
+        height={600}
+        width={960}
       />
-    </div>
+    </main>
   );
 }
 

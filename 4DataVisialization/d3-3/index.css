@@ -1,6 +1,7 @@
-#title {
+body {
     text-align: center;
 }
+
 
 .bar {
     border: 1px solid black;
@@ -25,25 +26,4 @@
     box-shadow: 1px 1px 10px;
     border-radius: 2px;
     pointer-events: none;
-}
-
-#legend {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    position: absolute;
-    height: 150px;
-    width: 170px;
-    padding: 10px;
-    background-color: gray;
-    box-shadow: 1px 1px 10px;
-    border-radius: 2px;
-    pointer-events: none;
-}
-
-.legend-item {
-    font: 12px;
-    color: black;
-    font-weight: bold;
-    padding: 5px;
 }
