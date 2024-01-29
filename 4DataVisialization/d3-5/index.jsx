@@ -62,13 +62,13 @@ const Chart = ({ data, height, width }) => {
       .selectAll('tspan')
       .data((d, i) => {
         let result = d.data.name.split(/(?=[A-Z][^A-Z])/g);
-        return result.map((d) => [d, i]);
+        return result.map((r) => [r, i]);
       })
       .enter()
       .append('tspan')
-      .attr('x', (d, i) => 3.5 + (tree[d[1]].x0))
-      .attr("y", (d, i, x) => 8 + (tree[d[1]].y0) + (i * 5))
-      .text((d) => d[0]);
+      .attr('x', (r, i) => 3.5 + (tree[r[1]].x0))
+      .attr("y", (r, i) => 8 + (tree[r[1]].y0) + (i * 5))
+      .text((r) => r[0]);
     // Legend
     let legend = svg.append("g")
       .attr("class", "legend")
