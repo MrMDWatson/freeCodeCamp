@@ -1,30 +1,31 @@
 const Chart = ({ data, height, width }) => {
   const createChart = () => {
-
-    let svg = d3.select("#tree");
-    
     let color = d3.scaleOrdinal([1, 10], [...d3.schemeSet3, ...d3.schemePaired]);
-
     let hierarchy = d3.hierarchy(data)
       .sum((d) => d.value)
       .sort((a, b) => b.value - a.value);
-
     let treemap = d3.treemap()
       .size([width, height])
       .paddingInner(5)
       (hierarchy);
-
-    console.log(treemap);
-    
-    const leaf = svg.selectAll("g")
-      .data(treemap.leaves())
+    let tree = treemap.leaves();
+    // Tooltip
+    let tooltip = d3.select("#Chart").append("div")
+      .attr("id", "tooltip")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+    // Create Chart
+    let svg = d3.select("#Chart").append("svg")
+      .attr("width", width)
+      .attr("height", height + 300)
+      .attr("id", "tree");
+    // Create leaves
+    let leaf = svg
+      .selectAll('g')
+      .data(tree)
       .enter()
-      .append("g");
-
-    let legend = svg.append("g")
-      .attr("class", "legend")
-      .attr("id", "legend");
-
+      .append('g')
+      .attr('class', 'leaf');
     leaf
       .append("rect")
       .attr("x", (d) => d.x0)
@@ -36,82 +37,8 @@ const Chart = ({ data, height, width }) => {
       .attr("data-name", (d) => d.data.name)
       .attr("data-category", (d) => d.data.category)
       .attr("data-value", (d) => d.data.value)
-      .style("fill", (d) => color(d.data.category));
-
-    leaf
-      .append("text")
-      .style("fill", "black")
-      .style("font-size", 8)
-      .attr("x", (d) => d.x0 + 5)
-      .attr("y", (d) => d.y0 + 15)
-      .text((d) => `${d.data.category} - ${d.data.name}: ${d.data.value}`);
-      /*
-    leaf.selectAll("text")
-      .data(treemap.leaves())
-      .join("text")
-      .attr("fill", "black")
-      .text();
-      */
-
-    /*
-
-    
-
-    d3.treemap()
-      .size([width, height])
-      .padding(1)
-      (root)
-
-    Console.log(root.leaves());
-    const svg = d3.select("svg");
-
-    const leaf = svg.selectAll("g")
-      .data(root.leaves())
-      .join("g")
-        .attr("transform", d => `translate(${d.x0},${d.y0})`);
-
-    leaf.append("rect")
-        .attr("id", d => (d.leafUid = DOM.uid("leaf")).id)
-        .attr("fill", d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
-        .attr("fill-opacity", 0.6)
-        .attr("width", d => d.x1 - d.x0)
-        .attr("height", d => d.y1 - d.y0);
-
-    var cell = svg
-      .selectAll('g')
-      .data(root.leaves())
-      .enter()
-      .append('g')
-      .attr('class', 'group')
-      .attr('transform', function (d) {
-        return 'translate(' + d.x0 + ',' + d.y0 + ')';
-      });
-
-    cell
-      .append('rect')
-      .attr('id', function (d) {
-        return d.data.id;
-      })
-      .attr('class', 'tile')
-      .attr('width', function (d) {
-        return d.x1 - d.x0;
-      })
-      .attr('height', function (d) {
-        return d.y1 - d.y0;
-      })
-      .attr('data-name', function (d) {
-        return d.data.name;
-      })
-      .attr('data-category', function (d) {
-        return d.data.category;
-      })
-      .attr('data-value', function (d) {
-        return d.data.value;
-      })
-      .attr('fill', function (d) {
-        return color(d.data.category);
-      })
-      .on('mousemove', function (event, d) {
+      .style("fill", (d) => color(d.data.category))
+      .on('mousemove', (event, d) => {
         tooltip.style('opacity', 0.9);
         tooltip
           .html(
@@ -122,32 +49,49 @@ const Chart = ({ data, height, width }) => {
               '<br>Value: ' +
               d.data.value
           )
-          .attr('data-value', d.data.value)
+          .attr("data-value", d.data.value)
           .style('left', event.pageX + 10 + 'px')
-          .style('top', event.pageY - 28 + 'px');
+          .style('top', event.pageY - 28 + 'px')
       })
-      .on('mouseout', function () {
+      .on('mouseout', () => {
         tooltip.style('opacity', 0);
       });
-
-    cell
+    leaf
       .append('text')
-      .attr('class', 'tile-text')
+      .attr('class', 'leaf-text')
       .selectAll('tspan')
-      .data(function (d) {
-        return d.data.name.split(/(?=[A-Z][^A-Z])/g);
+      .data((d, i) => {
+        let result = d.data.name.split(/(?=[A-Z][^A-Z])/g);
+        return result.map((d) => [d, i]);
       })
       .enter()
       .append('tspan')
-      .attr('x', 4)
-      .attr('y', function (d, i) {
-        return 13 + i * 10;
-      })
-      .text(function (d) {
-        return d;
-      });
-    }
-    */
+      .attr('x', (d, i) => 3.5 + (tree[d[1]].x0))
+      .attr("y", (d, i, x) => 8 + (tree[d[1]].y0) + (i * 5))
+      .text((d) => d[0]);
+    // Legend
+    let legend = svg.append("g")
+      .attr("class", "legend")
+      .attr("id", "legend");
+    let legendLeaf = legend.selectAll("g")
+      .data(new Set(tree.map((d) => d.data.category)))
+      .enter()
+      .append("g");
+    legendLeaf
+      .append("rect")
+      .attr("x", (d, i) => 40 + (i * 45))
+      .attr("y", (d, i) => height + 50)
+      .attr("class", "legend-item")
+      .attr("width", (d) => 20)
+      .attr("height", (d) => 20)
+      .attr("fill", (d) => color(d));
+    legendLeaf
+      .append("text")
+      .attr("class", "legend-leaf-text")
+      .attr("x", (d, i) => 40 + (i * 45))
+      .attr("y", (d, i) => height + 90)
+      .text((d) => d);
+      
   }
   React.useEffect(() => {
     if (data != null) {
@@ -157,8 +101,7 @@ const Chart = ({ data, height, width }) => {
   return (
     <div id="Chart">
       <h3 id="title">Tree Map</h3>
-      <p id="description">Add description</p>
-      <svg id="tree" width={width} height={height}></svg>
+      <p id="description">Top 100 Most Sold Video Games Grouped by Platform</p>
     </div>
   );
 }

@@ -35,7 +35,7 @@ const Chart = ({ educationData, countyData, height, width }) => {
       .attr("data-fips", (d) => d.id)
       .attr("data-education", (d) => educationData.filter((county) => county.fips === d.id)[0].bachelorsOrHigher)
       .attr("fill", (d) => color(educationData.filter((county) => county.fips === d.id)[0].bachelorsOrHigher))
-      .on("mouseover", (event, d) => {
+      .on("mousemove", (event, d) => {
         tooltip.style("opacity", 0.9);
         tooltip
           .html(() => {

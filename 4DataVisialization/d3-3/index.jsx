@@ -1,12 +1,9 @@
-const Chart = ({ graphData }) => {
+const Chart = ({ graphData, width, height, padding }) => {
   const createChart = () => {
     const yearArray = graphData.map((d) => d["year"]);
     const months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
     const xMax = d3.max(yearArray);
     const xMin = d3.min(yearArray);
-    const height = 600;
-    const width = 800;
-    const padding = 80;
     // Declare the x (horizontal position) scale.
     const xScale = d3
       .scaleLinear()
@@ -72,7 +69,7 @@ const Chart = ({ graphData }) => {
       ))
       .attr("id", "cell")
       .attr("class", "cell")
-      .on("mouseover", (event, d) => {
+      .on("mousemove", (event, d) => {
         tooltip.style("opacity", 0.9);
         tooltip
           .html(`${months[d["month"] - 1]} ${d["year"]}<br />${d3.format('.1f')((Math.floor((d["variance"] + 8.66) * 100)) / 100) + '&#8451;'}<br />Variance: ${d3.format('.1f')(d["variance"]) + '&#8451;'}`)
@@ -106,7 +103,7 @@ const Chart = ({ graphData }) => {
       .call(yAxis);
   }
   React.useEffect(() => {
-    if (graphData != "") {
+    if (graphData != null) {
       createChart();
     }
   }, [graphData]);
@@ -119,7 +116,7 @@ const Chart = ({ graphData }) => {
 }
 
 const App = () => {
-  const [graphData, setGraphData] = React.useState([]);
+  const [graphData, setGraphData] = React.useState(null);
   const getGraphData = async () => {
     try {
       const response = await fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json");
@@ -135,7 +132,12 @@ const App = () => {
   }, []);
   return (
     <div id="App">
-      <Chart graphData={graphData} />
+      <Chart
+        graphData={graphData}
+        height={600}
+        width={800}
+        padding={80}
+      />
     </div>
   );
 }

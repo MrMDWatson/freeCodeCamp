@@ -8,8 +8,8 @@ const Chart = ({ graphData }) => {
     const yMin = d3.min(gdpArray);
     const xMax = d3.max(dateArray);
     const xMin = d3.min(dateArray);
-    const barWidth = 2;
-    const height = 400;
+    const barWidth = 4;
+    const height = 600;
     const width = graphData.length * barWidth;
     const padding = 80;
     // Declare the x (horizontal position) scale.
@@ -46,7 +46,7 @@ const Chart = ({ graphData }) => {
       .attr("x", (d, i) => (((width - (padding * 2)) / graphData.length) * i) + padding)
       .attr("y", (d, i) => yScale(d[1]))
       .attr("class", "bar")
-      .on("mouseover", (event, d) => {
+      .on("mousemove", (event, d) => {
         tooltip.style("opacity", 0.9);
         tooltip
           .html(d[0] + `<br /> GDP: ` + d[1])
@@ -78,7 +78,7 @@ const Chart = ({ graphData }) => {
       .call(d3.axisLeft(yScale));
   }
   React.useEffect(() => {
-    if (graphData != "") {
+    if (graphData != null) {
       createBarChart();
     }
   }, [graphData]);
@@ -90,7 +90,7 @@ const Chart = ({ graphData }) => {
 }
 
 const App = () => {
-  const [graphData, setGraphData] = React.useState([]);
+  const [graphData, setGraphData] = React.useState(null);
   const getGraphData = async () => {
     try {
       const response = await fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json");

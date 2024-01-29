@@ -1,4 +1,4 @@
-const Scattorplot = ({ graphData }) => {
+const Scattorplot = ({ graphData, width, height, padding }) => {
   const createScattorplot = () => {
     const yearArray = graphData.map((d) => d["Year"]);
     const timeArray = graphData.map((d) => d["Seconds"] * 1000);
@@ -6,9 +6,6 @@ const Scattorplot = ({ graphData }) => {
     const xMin = d3.min(yearArray, (d) => d);
     const yMax = d3.min(timeArray, (d) => d);
     const yMin = d3.max(timeArray, (d) => d);
-    const height = 400;
-    const width = 500
-    const padding = 80;
     // Declare the x (horizontal position) scale.
     const xScale = d3
       .scaleLinear()
@@ -51,7 +48,7 @@ const Scattorplot = ({ graphData }) => {
       .attr("data-yvalue", (d) => new Date(d["Seconds"] * 1000))
       .attr("fill", (d) => d["Doping"] ? "red" : "blue")
       .attr("class", "dot")
-      .on("mouseover", (d, i) => {
+      .on("mousemove", (d, i) => {
         tooltip.style("opacity", 0.9);
         tooltip
           .html(d["Year"] + `<br /> Time: ` + d["Time"])
@@ -72,14 +69,14 @@ const Scattorplot = ({ graphData }) => {
       .text("Time in Minutes");
     // Add the x-axis.
     let xAxis = d3.axisBottom(xScale)
-                    .tickFormat(d3.format('d'));
+      .tickFormat(d3.format('d'));
     svg.append("g")
       .attr("id", "x-axis")
       .attr("transform", `translate(0,${height - padding})`)
       .call(xAxis);
     // Add the y-axis.
     let yAxis = d3.axisLeft(yScale)
-                    .tickFormat(d3.timeFormat('%M:%S'));
+      .tickFormat(d3.timeFormat('%M:%S'));
     svg.append("g")
       .attr("id", "y-axis")
       .attr("transform", `translate(${padding},0)`)
@@ -113,7 +110,11 @@ const App = () => {
   }, []);
   return (
     <div id="App">
-      <Scattorplot graphData={graphData} />
+      <Scattorplot
+        graphData={graphData}
+        width={1000}
+        height={800}
+        padding={80} />
     </div>
   );
 }
