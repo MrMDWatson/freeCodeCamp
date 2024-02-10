@@ -4,7 +4,7 @@ const Issues = require("../db/userModel").Issues;
 module.exports = function (app) {
 
   app.route('/api/issues/:project')
-  
+
     .get(async (req, res) => {
       const projectName = req.params.project;
       try {
@@ -26,7 +26,7 @@ module.exports = function (app) {
         });
       }
     })
-    
+
     .post(async (req, res) => {
       const projectName = req.params.project;
       let { issue_title, issue_text, created_by, assigned_to, status_text } = req.body;
@@ -63,12 +63,12 @@ module.exports = function (app) {
         res.json({error: "Issue not posted"});
       }
     })
-    
+
     .put(async (req, res) => {
       let project = req.params.project;
-      let { _id, issue_title, issue_text, created_by, assigned_to, status_text } = req.body;
+      let { _id, issue_title, issue_text, created_by, assigned_to, open, status_text } = req.body;
       if (!_id) {
-        res.json({error: "missing id"});
+        res.json({error: "missing _id"});
         return;  
       }
       try {
@@ -77,10 +77,13 @@ module.exports = function (app) {
           {
             issue_title: issue_title,
             issue_text: issue_text,
+            updated_on: new Date,
             created_by: created_by,
             assigned_to: assigned_to,
+            open: open,
             status_text: status_text
-          }
+          },
+          {new: true}
         );
         res.json({
           result: "successfully updated",
@@ -94,7 +97,7 @@ module.exports = function (app) {
         });
       }
     })
-    
+
     .delete(async (req, res) => {
       let project = req.params.project;
       let { _id } = req.body;
@@ -104,18 +107,18 @@ module.exports = function (app) {
         });
       }
       try {
-        let issue = await Issues.findByIdAndDelete(_id);
+        await Issues.findByIdAndDelete({_id: _id});
         res.json({
           result: "successfully deleted",
           _id: _id
         });
       } catch(err) {
         console.log(err);
-        res.status(500).json({
+        res.json({
           message: "could not delete",
           _id: _id
         });
       }
     });
-    
+
 };
