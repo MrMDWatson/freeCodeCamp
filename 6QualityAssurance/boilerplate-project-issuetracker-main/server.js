@@ -4,15 +4,15 @@ const express     = require('express');
 const bodyParser  = require('body-parser');
 const expect      = require('chai').expect;
 const cors        = require('cors');
+const dbConnect = require("./db/dbConnect.js");
 
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
 const runner            = require('./test-runner');
 
-const dbConnect = require("./db/dbConnect.js");
-dbConnect();
 
 let app = express();
+dbConnect();
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
