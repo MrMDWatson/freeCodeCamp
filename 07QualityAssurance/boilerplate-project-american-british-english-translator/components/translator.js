@@ -8,103 +8,156 @@ class Translator {
         this.currentText = "";
     }
 
-    updateTranslation(target, replacement, currentTranslation) {
+    updateTranslation(targetWord, foundMatch, replacementWord) {
         let newWord = "";
-        if (currentTranslation[target.index] === currentTranslation[target.index].toUpperCase()) {
-            newWord += replacement[0].toUpperCase();
-            newWord += replacement.slice(1);
+        let uppercase = foundMatch[0].trim()[0] === foundMatch[0].trim()[0].toUpperCase();
+        if (uppercase) {
+            newWord += foundMatch[0].replace(foundMatch[0].trim().slice(0, targetWord.length), `<span class=\"highlight\">${replacementWord[0].toUpperCase()}${replacementWord.slice(1)}</span>`);
         } else {
-            newWord = replacement;
+            newWord += foundMatch[0].replace(foundMatch[0].trim().slice(0, targetWord.length), `<span class=\"highlight\">${replacementWord}</span>`);
         }
-        const transStart = currentTranslation.slice(0, target.index);
-        const transEnding = currentTranslation.slice(target.index + target[0].length);
-        if (target.index == 0) {
-            this.currentText = "<span class=\"highlight\">" + newWord + "</span>" + transEnding;
+        const transStart = this.currentText.slice(0, foundMatch.index);
+        const transEnding = this.currentText.slice(foundMatch.index + foundMatch[0].length);
+        if (foundMatch.index == 0) {
+            this.currentText = newWord + transEnding;
         } else {
-            this.currentText = transStart + "<span class=\"highlight\">" + newWord + "</span>" + transEnding; 
+            this.currentText = transStart + newWord + transEnding; 
+        }
+    }
+    
+    searchMatches(word) {
+        let search1 = new RegExp(`^${word}[^a-z0-9-]`, 'i');
+        let search2 = new RegExp(`\\s${word}[^a-z0-9-]`, 'i');
+        let search3 = new RegExp(`\\s${word}$`, 'i');
+        let search4 = new RegExp(`^${word}$`, 'i');
+        if (this.currentText.match(search1)) {
+            return this.currentText.match(search1);
+        } else if (this.currentText.match(search2)) {
+            return this.currentText.match(search2);
+        } else if (this.currentText.match(search3)) {
+            return this.currentText.match(search3);
+        } else if (this.currentText.match(search4)) {
+            return this.currentText.match(search4)
+        } else {
+            return false;
+        }
+    }
+
+    findBritishTranslation(property) {
+        let found = this.searchMatches(property);
+        if  (found) {
+            //console.log(found);
+            this.updateTranslation(property, found, americanOnly[property]);
+            this.findBritishTranslation(property);
+        }
+    }
+
+    findBritishSpelling(property) {
+        let found = this.searchMatches(property);
+        if  (found) {
+            //console.log(found);
+            this.updateTranslation(property, found, americanToBritishSpelling[property]);
+            this.findBritishSpelling(property);
+        }
+    }
+
+    findBritishTitle(property) {
+        let found = this.searchMatches(`${property.slice(0, property.length - 1)}[.]`)
+        if  (found) {
+            //console.log(found);
+            this.updateTranslation(property, found, americanToBritishTitles[property]);
+            this.findBritishTitle(property);
+        }
+    }
+
+    findBritishTime() {
+        let found = this.currentText.match(/\d{1,2}[:]\d\d/);
+        if (found) {
+            //console.log(found);
+            let hoursMin = found[0].split(":");
+            this.currentText = this.currentText.replace(found, `<span class=\"highlight\">${hoursMin[0]}.${hoursMin[1]}</span>`);
+            this.findBritishTime();
         }
     }
     
     americanToBritish(text) {
-        for (let property in americanOnly) {
-            const search = new RegExp(`${property}`, 'i');
-            const found = this.currentText.match(search);
-            if (found) {
-                console.log(found);
-                if (this.currentText[found.index - 1] != /\w/ && this.currentText[found.index + found[0].length] != /\w/) {
-                    this.updateTranslation(found, americanOnly[property], this.currentText);
-                }
-            }
+        for (let americanWord in americanOnly) {
+            this.findBritishTranslation(americanWord)
         }
-        for (let property in americanToBritishSpelling) {
-            const search = new RegExp(`${property}`, "i");
-            const found = this.currentText.match(search);
-            if (found && this.currentText[found.index - 1] != /\w/ && this.currentText[found.index + found[0].length] != /\w/) {
-                console.log(found);
-                this.updateTranslation(found, americanToBritishSpelling[property], this.currentText);
-            }
+        for (let americanWord in americanToBritishSpelling) {
+            this.findBritishSpelling(americanWord)
         }
-        for (let property in americanToBritishTitles) {
-            const search = new RegExp(`${property.slice(0, property.length - 1)}[.]`, "i");
-            const found = this.currentText.match(search);
-            if (found && this.currentText[found.index - 1] != /\w/ && this.currentText[found.index + found[0].length] != /\w/) {
-                console.log(found);
-                this.updateTranslation(found, americanToBritishTitles[property], this.currentText);
-            }
+        for (let americanWord in americanToBritishTitles) {
+            this.findBritishTitle(americanWord)
         }
-        const hasTime = this.currentText.match(/\d{1,2}[:]\d\d/);
-        if (hasTime && this.currentText[hasTime.index - 1] != /\w/ && this.currentText[hasTime.index + hasTime[0].length] != /\w/) {
-            console.log(hasTime);
-            let hoursMin = hasTime[0].split(":");
-            this.currentText = this.currentText.replace(hasTime, `<span class=\"highlight\">${hoursMin[0]}.${hoursMin[1]}</span>`);
-        }
+        this.findBritishTime();
         if (this.currentText === text) {
             return "Everything looks good to me!"
+        } else {
+            return this.currentText;
         }
-        return this.currentText;
     }
 
+    
+
+    findAmericanTranslation(property) {
+        let found = this.searchMatches(property);
+        if (found) {
+            //console.log(found);
+            this.updateTranslation(property, found, britishOnly[property]);
+            this.findAmericanTranslation(property);
+        }
+    }
+    
+    findAmericanSpelling(property) {
+        let found = this.searchMatches(americanToBritishSpelling[property]);
+        if (found) {
+            //console.log(found);
+            this.updateTranslation(americanToBritishSpelling[property], found, property);
+            this.findAmericanSpelling(property);
+        }
+    }
+
+    findAmericanTitle(property) {
+        let found = this.searchMatches(americanToBritishTitles[property]);
+        if (found) {
+            //console.log(found);
+            this.updateTranslation(americanToBritishTitles[property], found, property);
+            this.findAmericanTitle(property);
+        }
+    }
+
+    findAmericanTime() {
+        let found = this.currentText.match(/\d{1,2}[.]\d\d/);
+        if (found) {
+            //console.log(found);
+            let hoursMin = found[0].split(".");
+            this.currentText = this.currentText.replace(found, `<span class=\"highlight\">${hoursMin[0]}:${hoursMin[1]}</span>`);
+            this.findAmericanTime();
+        }
+    }
 
     britishToAmerican(text) {
-        for (let property in britishOnly) {
-            const search = new RegExp(`${property}`, 'i');
-            const found = this.currentText.match(search);
-            if (found && this.currentText[found.index - 1] != /\w/ && this.currentText[found.index + found[0].length] != /\w/) {
-                console.log(found);
-                this.updateTranslation(found, britishOnly[property], this.currentText);
-            }
+        for (let britishWord in britishOnly) {
+            this.findAmericanTranslation(britishWord);
         }
-        for (let property in americanToBritishSpelling) {
-            let search = new RegExp(`${americanToBritishSpelling[property]}`, "i");
-            let found = this.currentText.match(search);
-            if (found && this.currentText[found.index - 1] != /\w/ && this.currentText[found.index + found[0].length] != /\w/) {
-                console.log(found);
-                this.updateTranslation(found, property, this.currentText);
-            }
+        for (let britishWord in americanToBritishSpelling) {
+            this.findAmericanSpelling(britishWord);
         }
-        for (let property in americanToBritishTitles) {
-            let search = new RegExp(`${americanToBritishTitles[property]}`, "i");
-
-            let found = this.currentText.match(search);
-            if (found && this.currentText[found.index - 1] != /\w/ && this.currentText[found.index + found[0].length] != /\w/) {
-                console.log(found);
-                this.updateTranslation(found, property, this.currentText);
-            }
+        for (let britishWord in americanToBritishTitles) {
+            this.findAmericanTitle(britishWord);
         }
-        const hasTime = this.currentText.match(/\d{1,2}[.]\d\d/);
-        if (hasTime && this.currentText[hasTime.index - 1] != /\w/ && this.currentText[hasTime.index + hasTime[0].length] != /\w/) {
-            console.log(hasTime);
-            let hoursMin = hasTime[0].split(".");
-            this.currentText = this.currentText.replace(hasTime, `<span class=\"highlight\">${hoursMin[0]}:${hoursMin[1]}</span>`);
-        }
+        this.findAmericanTime();
         if (this.currentText === text) {
             return "Everything looks good to me!"
+        } else {
+            return this.currentText;
         }
-        return this.currentText;
     }
 
     translate(text, locale) {
         this.currentText = text;
+        //console.log(text);
         let translation;
         if (locale === "american-to-british") {
             translation = this.americanToBritish(text);
@@ -112,8 +165,9 @@ class Translator {
             translation = this.britishToAmerican(text);
         } else {
             return {error: "Invalid value for locale field"}
+        
         }
-        console.log(translation);
+        //console.log(translation);
         return {text: text, translation: translation};
     }
 }

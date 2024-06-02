@@ -17,10 +17,10 @@ module.exports = function (app) {
         res.json({error: "Required field(s) missing"});
         return;
       }
-      console.log("__________________")
-      console.log(text, locale);
+      //console.log("__________________")
+      //console.log(text, locale);
       let transObj = translator.translate(text, locale);
-      console.log(transObj);
+      //console.log(transObj);
       res.json(transObj);
       return;
     });
