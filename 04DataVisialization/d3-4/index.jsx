@@ -10,15 +10,15 @@ const Chart = ({ educationData, countyData, height, width }) => {
     let color = d3.scaleQuantize([xMin, xMax], d3.schemeBlues[9].filter((d, i) => i > 1));
     // Legend scale
     let x = d3.scaleLinear([xMin, xMax], [600, 860]);
+    // Create chart
+    let svg = d3.select("#Chart").append("svg")
+    .attr("width", width)
+    .attr("height", height);
     // Create tooltip
-    let tooltip = d3.select("#Chart").append("div")
+    let tooltip = d3.select("#Chart").append("g")
       .attr("id", "tooltip")
       .attr("class", "tooltip")
       .style("opacity", 0);
-    // Create chart
-    let svg = d3.select("#Chart").append("svg")
-      .attr("width", width)
-      .attr("height", height);
     // Create legend
     let legend = svg.append("g")
       .attr("class", "legend")
